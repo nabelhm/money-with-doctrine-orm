@@ -35,17 +35,10 @@ class CurrencyManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructor()
     {
-        $class = 'Cubalider\Component\Money\Model\Currency';
-        $metadata = $this->getMock('Doctrine\Common\Persistence\Mapping\ClassMetadata');
-        $metadata->expects($this->once())->method('getName')->will($this->returnValue($class));
-        $em = $this->getMock('Doctrine\ORM\EntityManagerInterface');
-        $em->expects($this->once())->method('getClassMetadata')->with($class)->will($this->returnValue($metadata));
-        /** @var \Doctrine\ORM\EntityManagerInterface $em */
-        $manager = new CurrencyManager($em, $class);
+        $manager = new CurrencyManager($this->em);
 
-        $this->assertAttributeEquals($em, 'em', $manager);
-        $this->assertAttributeEquals($class, 'class', $manager);
-        $this->assertAttributeEquals($em->getRepository($class), 'repository', $manager);
+        $this->assertAttributeEquals($this->em, 'em', $manager);
+        $this->assertAttributeEquals($this->em->getRepository('Cubalider\Component\Money\Model\Currency'), 'repository', $manager);
     }
 
     /**

@@ -20,21 +20,15 @@ class CurrencyManager implements CurrencyManagerInterface
     private $repository;
 
     /**
-     * Constructor
-     *
-     * Additionally it creates a repository using $em, for given class
+     * Constructor.
+     * Additionally it creates a repository using $em, for given class.
      *
      * @param EntityManagerInterface $em
-     * @param string $class
      */
-    public function __construct(
-        EntityManagerInterface $em,
-        $class = 'Cubalider\Component\Money\Model\Currency'
-    )
+    public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
-        $this->class = $em->getClassMetadata($class)->getName();
-        $this->repository = $this->em->getRepository($class);
+        $this->repository = $this->em->getRepository('Cubalider\Component\Money\Model\Currency');
     }
 
     /**
