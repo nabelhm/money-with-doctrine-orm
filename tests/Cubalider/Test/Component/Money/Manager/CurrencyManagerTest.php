@@ -3,7 +3,7 @@
 namespace Cubalider\Test\Component\Money\Manager;
 
 use Cubalider\Component\Money\Manager\CurrencyManager;
-use Cubalider\Component\Money\Entity\Currency;
+use Cubalider\Component\Money\Model\Currency;
 use Doctrine\ORM\EntityManager;
 use Cubalider\Test\Component\Money\EntityManagerBuilder;
 
@@ -19,16 +19,13 @@ class CurrencyManagerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $currencyClass = 'Cubalider\Component\Money\Entity\Currency';
-
         $builder = new EntityManagerBuilder();
         $this->em = $builder->createEntityManager(
             array(
-                $currencyClass,
+                sprintf("%s/../../../../../../src/Cubalider/Component/Money/Resources/config/doctrine", __DIR__)
             ),
-            array(),
             array(
-                'Cubalider\Component\Money\Entity\CurrencyInterface' => $currencyClass,
+                'Cubalider\Component\Money\Model\Currency',
             )
         );
     }
@@ -38,7 +35,7 @@ class CurrencyManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructor()
     {
-        $class = 'Cubalider\Component\Money\Entity\Currency';
+        $class = 'Cubalider\Component\Money\Model\Currency';
         $metadata = $this->getMock('Doctrine\Common\Persistence\Mapping\ClassMetadata');
         $metadata->expects($this->once())->method('getName')->will($this->returnValue($class));
         $em = $this->getMock('Doctrine\ORM\EntityManagerInterface');
@@ -70,12 +67,10 @@ class CurrencyManagerTest extends \PHPUnit_Framework_TestCase
 
         /* Tests */
 
-        $class = 'Cubalider\Component\Money\Entity\Currency';
-
-        $manager = new CurrencyManager($this->em, $class);
+        $manager = new CurrencyManager($this->em);
         $this->assertEquals($currency2, $manager->pick('bar'));
 
-        $manager = new CurrencyManager($this->em, $class);
+        $manager = new CurrencyManager($this->em);
         $this->assertEquals($currency2, $manager->pick(array('code' => 'bar')));
     }
 }

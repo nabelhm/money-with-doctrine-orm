@@ -29,7 +29,7 @@ class CurrencyManager implements CurrencyManagerInterface
      */
     public function __construct(
         EntityManagerInterface $em,
-        $class = 'Cubalider\Component\Money\Entity\Currency'
+        $class = 'Cubalider\Component\Money\Model\Currency'
     )
     {
         $this->em = $em;
