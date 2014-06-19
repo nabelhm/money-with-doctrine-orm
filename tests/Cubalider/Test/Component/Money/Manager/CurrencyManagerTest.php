@@ -48,13 +48,9 @@ class CurrencyManagerTest extends \PHPUnit_Framework_TestCase
     {
         /* Fixtures */
 
-        $currency1 = new Currency();
-        $currency1->setCode('foo');
-        $currency1->setName('Foo');
+        $currency1 = new Currency('foo', 'Foo');
         $this->em->persist($currency1);
-        $currency2 = new Currency();
-        $currency2->setCode('bar');
-        $currency2->setName('Bar');
+        $currency2 = new Currency('bar', 'Bar');
         $this->em->persist($currency2);
         $this->em->flush();
 
