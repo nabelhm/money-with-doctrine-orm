@@ -2,7 +2,7 @@
 
 namespace Cubalider\Component\Money\Manager;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityManager;
 
 /**
  * @author Yosmany Garcia <yosmanyga@gmail.com>
@@ -10,7 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class CurrencyManager implements CurrencyManagerInterface
 {
     /**
-     * @var \Doctrine\ORM\EntityManagerInterface
+     * @var \Doctrine\ORM\EntityManager
      */
     private $em;
 
@@ -21,11 +21,11 @@ class CurrencyManager implements CurrencyManagerInterface
 
     /**
      * Constructor.
-     * Additionally it creates a repository using $em, for given class.
+     * Additionally it creates a repository using $em, for entity class.
      *
-     * @param EntityManagerInterface $em
+     * @param EntityManager $em
      */
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManager $em)
     {
         $this->em = $em;
         $this->repository = $this->em->getRepository('Cubalider\Component\Money\Model\Currency');
