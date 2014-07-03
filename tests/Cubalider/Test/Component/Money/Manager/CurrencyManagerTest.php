@@ -22,7 +22,7 @@ class CurrencyManagerTest extends \PHPUnit_Framework_TestCase
         $builder = new EntityManagerBuilder();
         $this->em = $builder->createEntityManager(
             array(
-                sprintf("%s/../../../../../../src/Cubalider/Component/Money/Resources/config/doctrine", __DIR__)
+                realpath(sprintf("%s/../../../../../../src/Cubalider/Component/Money/Resources/config/doctrine", __DIR__))
             ),
             array(
                 'Cubalider\Component\Money\Model\Currency',
