@@ -2,7 +2,9 @@
 
 namespace Cubalider\Component\Money\Manager;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
+use Yosmanyga\Component\Dql\Fit\Builder;
+use Yosmanyga\Component\Dql\Fit\WhereCriteriaFit;
 
 /**
  * @author Yosmany Garcia <yosmanyga@gmail.com>
@@ -10,25 +12,30 @@ use Doctrine\ORM\EntityManager;
 class CurrencyManager implements CurrencyManagerInterface
 {
     /**
-     * @var \Doctrine\ORM\EntityManager
+     * @var string
+     */
+    private $class = 'Cubalider\Component\Money\Model\Currency';
+
+    /**
+     * @var \Doctrine\ORM\EntityManagerInterface
      */
     private $em;
 
     /**
-     * @var \Doctrine\ORM\EntityRepository
+     * @var Builder;
      */
-    private $repository;
+    private $builder;
 
     /**
      * Constructor.
-     * Additionally it creates a repository using $em, for entity class.
      *
-     * @param EntityManager $em
+     * @param EntityManagerInterface $em
+     * @param Builder       $builder
      */
-    public function __construct(EntityManager $em)
+    public function __construct(EntityManagerInterface $em, Builder $builder = null)
     {
         $this->em = $em;
-        $this->repository = $this->em->getRepository('Cubalider\Component\Money\Model\Currency');
+        $this->builder = $builder ?: new Builder($em);
     }
 
     /**
@@ -43,6 +50,13 @@ class CurrencyManager implements CurrencyManagerInterface
             $criteria = array('code' => $criteria);
         }
 
-        return $this->repository->findOneBy($criteria);
+        $qb = $this->builder->build(
+            $this->class,
+            new WhereCriteriaFit($criteria)
+        );
+
+        return $qb
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }
