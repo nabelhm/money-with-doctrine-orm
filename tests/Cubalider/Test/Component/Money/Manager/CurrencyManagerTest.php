@@ -3,42 +3,45 @@
 namespace Cubalider\Test\Component\Money\Manager;
 
 use Cubalider\Component\Money\Manager\CurrencyManager;
-use Cubalider\Component\Money\Model\Currency;
-use Doctrine\ORM\EntityManager;
-use Cubalider\Test\Component\Money\EntityManagerBuilder;
+use Yosmanyga\Component\Dql\Fit\Builder;
+use Yosmanyga\Component\Dql\Fit\WhereCriteriaFit;
 
 /**
  * @author Yosmany Garcia <yosmanyga@gmail.com>
+ * @author Manuel Emilio Carpio <mectwork@gmail.com>
  */
 class CurrencyManagerTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var EntityManager
-     */
-    private $em;
-
-    protected function setUp()
-    {
-        $builder = new EntityManagerBuilder();
-        $this->em = $builder->createEntityManager(
-            array(
-                realpath(sprintf("%s/../../../../../../src/Cubalider/Component/Money/Resources/config/doctrine", __DIR__))
-            ),
-            array(
-                'Cubalider\Component\Money\Model\Currency',
-            )
-        );
-    }
-
     /**
      * @covers \Cubalider\Component\Money\Manager\CurrencyManager::__construct
      */
     public function testConstructor()
     {
-        $manager = new CurrencyManager($this->em);
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $em = $this->getMockBuilder('Doctrine\ORM\EntityManagerInterface')
+            ->getMock();
+        /** @var \Yosmanyga\Component\Dql\Fit\Builder $builder */
+        $builder = $this->getMockBuilder('Yosmanyga\Component\Dql\Fit\Builder')
+            ->setConstructorArgs(array($em))
+            ->getMock();
+        $manager = new CurrencyManager($em, $builder);
 
-        $this->assertAttributeEquals($this->em, 'em', $manager);
-        $this->assertAttributeEquals($this->em->getRepository('Cubalider\Component\Money\Model\Currency'), 'repository', $manager);
+        $this->assertAttributeEquals($em, 'em', $manager);
+        $this->assertAttributeEquals($builder, 'builder', $manager);
+    }
+
+    /**
+     * @covers \Cubalider\Component\Money\Manager\CurrencyManager::__construct
+     */
+    public function testConstructorWithDefaultParameters()
+    {
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $em = $this->getMockBuilder('Doctrine\ORM\EntityManagerInterface')
+            ->getMock();
+        /** @var \Doctrine\ORM\EntityManager $em */
+        $manager = new CurrencyManager($em);
+
+        $this->assertAttributeEquals(new Builder($em), 'builder', $manager);
     }
 
     /**
@@ -46,20 +49,40 @@ class CurrencyManagerTest extends \PHPUnit_Framework_TestCase
      */
     public function testPick()
     {
-        /* Fixtures */
+        $em = $this->getMock('Doctrine\ORM\EntityManagerInterface');
+        $builder = $this->getMockBuilder('Yosmanyga\Component\Dql\Fit\Builder')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $criteria = array('foo' => 'bar');
+        $qb = $this->getMockBuilder('Doctrine\ORM\QueryBuilder')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $query = $this->getMockBuilder('Doctrine\ORM\AbstractQuery')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getOneOrNullResult'))
+            ->getMockForAbstractClass();
+        /** @var \Doctrine\ORM\EntityManager $em */
+        /** @var \Yosmanyga\Component\Dql\Fit\Builder $builder */
+        $manager = new CurrencyManager($em, $builder);
 
-        $currency1 = new Currency('foo', 'Foo');
-        $this->em->persist($currency1);
-        $currency2 = new Currency('bar', 'Bar');
-        $this->em->persist($currency2);
-        $this->em->flush();
+        /** @var \PHPUnit_Framework_MockObject_MockObject $builder */
+        $builder
+            ->expects($this->once())
+            ->method('build')
+            ->with(
+                'Cubalider\Component\Money\Model\Currency',
+                new WhereCriteriaFit($criteria)
+            )
+            ->will($this->returnValue($qb));
+        $qb
+            ->expects($this->once())
+            ->method('getQuery')
+            ->will($this->returnValue($query));
+        $query
+            ->expects($this->once())
+            ->method('getOneOrNullResult')
+            ->will($this->returnValue('foobar'));
 
-        /* Tests */
-
-        $manager = new CurrencyManager($this->em);
-        $this->assertEquals($currency2, $manager->pick('bar'));
-
-        $manager = new CurrencyManager($this->em);
-        $this->assertEquals($currency2, $manager->pick(array('code' => 'bar')));
+        $this->assertEquals('foobar', $manager->pick($criteria));
     }
 }
