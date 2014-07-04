@@ -85,4 +85,46 @@ class CurrencyManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('foobar', $manager->pick($criteria));
     }
+
+    /**
+     * @covers \Cubalider\Component\Money\Manager\CurrencyManager::pick
+     */
+    public function testPickWithString()
+    {
+        $em = $this->getMock('Doctrine\ORM\EntityManagerInterface');
+        $builder = $this->getMockBuilder('Yosmanyga\Component\Dql\Fit\Builder')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $criteria = 'foo';
+        $qb = $this->getMockBuilder('Doctrine\ORM\QueryBuilder')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $query = $this->getMockBuilder('Doctrine\ORM\AbstractQuery')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getOneOrNullResult'))
+            ->getMockForAbstractClass();
+        /** @var \Doctrine\ORM\EntityManager $em */
+        /** @var \Yosmanyga\Component\Dql\Fit\Builder $builder */
+        $manager = new CurrencyManager($em, $builder);
+
+        /** @var \PHPUnit_Framework_MockObject_MockObject $builder */
+        $builder
+            ->expects($this->once())
+            ->method('build')
+            ->with(
+                'Cubalider\Component\Money\Model\Currency',
+                new WhereCriteriaFit(array('code' => $criteria))
+            )
+            ->will($this->returnValue($qb));
+        $qb
+            ->expects($this->once())
+            ->method('getQuery')
+            ->will($this->returnValue($query));
+        $query
+            ->expects($this->once())
+            ->method('getOneOrNullResult')
+            ->will($this->returnValue('foobar'));
+
+        $this->assertEquals('foobar', $manager->pick($criteria));
+    }
 }
