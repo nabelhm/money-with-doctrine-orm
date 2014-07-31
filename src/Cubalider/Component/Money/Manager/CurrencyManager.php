@@ -42,6 +42,7 @@ class CurrencyManager implements CurrencyManagerInterface
      * Picks a currency using given criteria
      *
      * @param string|array $criteria
+     *
      * @return mixed
      */
     public function pick($criteria)
